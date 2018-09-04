@@ -1,0 +1,11 @@
+[package]
+name = "renderer"
+version = "0.1.0"
+authors = ["davidsullivan <touisbetterthanpi@gmail.com>"]
+
+[dependencies]
+
+sdl2 = "0.31.0"
+rand = "0.5.4"
+num = "0.2.0"
+spin_sleep = "0.3.6"

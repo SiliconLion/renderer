@@ -1,0 +1,1 @@
+/Users/davidsullivan/Desktop/Programing/Rust/renderer/target/debug/renderer-58afcc728c3e62db.dSYM: /Users/davidsullivan/Desktop/Programing/Rust/renderer/src/lib.rs /Users/davidsullivan/Desktop/Programing/Rust/renderer/src/main.rs
