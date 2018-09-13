@@ -105,7 +105,7 @@ unsafe fn pixel_manip(buffer: *mut Vec<u8>, triangles: &Vec<Tri>, width: i32, he
             this itterator checks every Tri to see if the pixel is in it.
             will modify color to be the color of the last tri the pixel is within.*/
             for tri in triangles {
-                let is_in_tri = tri.is_inside(&Point::new(col,row));
+                let is_in_tri = tri.is_inside(&Point::new(col as  f32,row as f32,0.0));
                 if is_in_tri {
                     color = tri.color;
                 }
