@@ -3,8 +3,12 @@ extern crate rand;
 use rand::Rand;
 extern crate num;
 
+
+
+
+
 //a point or vector centered at the origin
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Point {
     //x,y,z 
     coords: [f32; 3]
@@ -49,11 +53,22 @@ impl ops::Add for Point {
     }
 }
 
+impl ops::AddAssign for Point {
+    fn add_assign(&mut self, other: Point) {
+        *self = Point { coords: [
+            self.x() + other.x(), 
+            self.y() + other.y(), 
+            self.z() + other.z()
+        ]};
+    }
+}
+
 
 impl ops::Sub for Point {
     type Output = Point;
 
     fn sub(self, other: Point) -> Point {
+        // other = *other;
         Point { coords: [
             self.x() - other.x(), 
             self.y() - other.y(), 
@@ -62,9 +77,19 @@ impl ops::Sub for Point {
     }
 }
 
+impl ops::SubAssign for Point {
+    fn sub_assign(&mut self, other: Point) {
+        *self = Point { coords: [
+            self.x() - other.x(), 
+            self.y() - other.y(), 
+            self.z() - other.z()
+        ]};
+    }
+}
+
 impl Point { 
 
-    fn dot_product(&self, p: Point) -> f32 {
+    fn dot_product(&self, p: &Point) -> f32 {
         let mut sum = 0.0;
         for c in 0..self.coords.len() {
             sum += self.coords[c] * p.coords[c];
@@ -76,65 +101,149 @@ impl Point {
     // using this method to find cross product
     //
     //          |i  j  k  | i  j
-    //      <a> |ax ay az | ax ay
-    //      <b> |bx by bz | bx by
+    //   <self> |ax ay az | ax ay
+    //  <other> |bx by bz | bx by
 
-    fn cross_product(&self, p: Point) {
+    fn cross_product(&self, other: &Point) -> Point {
+        let positive = Point::new(
+                self.coords[1] * other.coords[2],
+                self.coords[2] * other.coords[0],
+                self.coords[0] * other.coords[1]
+            );
+        let negative = Point::new(
+                self.coords[2] * other.coords[1],
+                self.coords[0] * other.coords[2],
+                self.coords[1] * other.coords[0]
+            );
+
+        positive - negative
 
     }
 
+    fn distance_from_origin(&self) -> f32 {
+        let components = (self.x() * self.x()) + (self.y() * self.y()) + (self.z() * self.z());
+
+        components.sqrt()
+    }
+
+    // angle in the form ∠abc
+    fn angle_between(a: &Point, b: &Point, c: &Point ) -> f32 {
+        let a = *a; 
+        let b = *b;
+        let c = *c;
+
+        //recenters angle at center
+        let ab = a - b;
+        let cb = c - b;
+
+        // ‖ab ✕ bc‖ = ‖ab‖ ‖cb‖ sin θ 
+        // using this common formula we solve for θ
+        let cross = ab.cross_product(&cb);
+        let cross_len = cross.distance_from_origin();
+
+        let sin_theta = cross_len / (ab.distance_from_origin() * cb.distance_from_origin() );
+        let theta = sin_theta.asin();
+
+        theta
+    }
+
+
+}
+
+impl Point {
+    
+    fn normal_from(a: &Point, b: &Point, c: &Point ) -> Point {
+        let a = *a; 
+        let b = *b;
+        let c = *c;
+
+        let p = a - b;
+        let r = c - b;
+        p.cross_product(&r)
+    }
 }
 
 
 
 
 
-// pub struct Tri {
-//     //in the order  A, B, C
-//     points: [Point; 3],
-//     normal: Point,
-//     pub color: [u8; 3]
-// }
 
-// impl Tri {
-//     pub fn new(A: Point, B: Point, C: Point, color: [u8; 3]) -> Tri {
-//         let AB = math_line::new(&A, &B);
-//         let BC = math_line::new(&B, &C);
-//         let CA = math_line::new(&C, &A);
-//         //print!("AB = {:?}\nBC = {:?}\nCA = {:?}\n", AB, BC, CA);
-//         Tri{ points:[A,B,C], lines :[AB,BC,CA], color }
-//     }
 
-//     pub fn is_inside(&self, P:&Point) -> bool {
-//         let mut P_is_inside = true;
-//         for (i,line) in self.lines.into_iter().enumerate() {
-//             //the vertex in the triangle not used in the line
-//             let point_not_used_in_line = &self.points[(i + 2) % 3];
-//             let needs_to_be_above: bool = line.is_above(point_not_used_in_line);
-//             let is_P_above = line.is_above(P);
-            
-//             if is_P_above != needs_to_be_above {
-//                 P_is_inside = false;
-//             }
-//         }
-//         P_is_inside
 
+
+
+pub struct Line {
+    //  t * <vector> + (origin)     where t is distance along the line
+    origin: Point,
+    vector: Point
+}
+
+impl Line {
+    fn new(v: Point, o: Point) -> Line {
+        unimplemented!()
+    }
+}
+
+
+impl Line {
+
+    fn point_from_t(&self, t: f32) -> Point {
+        let mut p = Point::new(
+            self.vector.x() * t,
+            self.vector.y() * t,
+            self.vector.z() * t
+        );
+
+        p += self.origin;
         
-//     }
+        p
+        
+    }
+}
 
-//     pub fn random(width: u32, height: u32) ->  Tri {
-//         Tri::new(
-//             Point::random(width as i32,height as i32),
-//             Point::random(width as i32,height as i32),
-//             Point::random(width as i32,height as i32),
-//             [
-//                 rand::random::<u8>(),
-//                 rand::random::<u8>(),
-//                 rand::random::<u8>()
-//             ]
-//         )
-//     }
-// }
+
+
+
+
+
+
+
+
+
+
+pub struct Tri {
+    //in the order  A, B, C
+    points: [Point; 3],
+    normal: Point,
+    pub color: [u8; 3]
+}
+
+impl Tri {
+    pub fn new(A: Point, B: Point, C: Point, color: [u8; 3]) -> Tri {
+        Tri {
+            points: [A, B, C],
+            normal: Point::normal_from(&A, &B, &C),
+            color
+        }
+    }
+
+    pub fn intersected_by(&self, l: Line) -> bool {
+        unimplemented!()
+    }
+
+    pub fn random(width: u32, height: u32) ->  Tri {
+        Tri::new(
+            Point::random(width as i32,height as i32),
+            Point::random(width as i32,height as i32),
+            Point::random(width as i32,height as i32),
+            [
+                rand::random::<u8>(),
+                rand::random::<u8>(),
+                rand::random::<u8>()
+            ]
+        )
+    }
+}
 
 
 
