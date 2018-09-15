@@ -32,11 +32,11 @@ impl Point {
         self.coords[2]
     }
 
-    pub fn random(max_width: i32, max_height: i32) -> Point {
+    pub fn random(max_width: i32, max_height: i32, max_depth: i32) -> Point {
         use rand::random;
         let x = random::<f32>() * max_width as f32;
         let y = random::<f32>() * max_height as f32;
-        let z = random::<f32>() * max_height as f32;
+        let z = random::<f32>() * max_depth as f32;
         Point{ coords: [x,y,z] }
     }
 }
@@ -171,16 +171,17 @@ impl Point {
 
 
 
-
+#[derive(Clone, Debug)]
 pub struct Line {
     //  t * <vector> + (origin)     where t is distance along the line
-    origin: Point,
-    vector: Point
+    vector: Point,
+    origin: Point
+    
 }
 
 impl Line {
-    fn new(v: Point, o: Point) -> Line {
-        unimplemented!()
+    pub   fn new(vector: Point, origin: Point) -> Line {
+        Line { vector, origin}
     }
 }
 
@@ -227,15 +228,55 @@ impl Tri {
         }
     }
 
-    pub fn intersected_by(&self, l: Line) -> bool {
-        unimplemented!()
+    
+
+
+    //the bool is if the point lies inside the triangle, and the Point 
+    //is where the line intersects the plane regardless of it is inside the triangle
+    pub fn intersects(&self, line: &Line) -> (bool, Point) {
+        //see https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection for whats being calculated
+
+    
+
+        let p0 = (*self).points[0].clone();
+        let l0 = line.origin.clone();
+        //nermerator and denomerator respectively
+        let numer = (p0 - l0).dot_product( &self.normal);
+        let denom = line.vector.dot_product( &self.normal);
+
+        let d = numer / denom ;
+        //where line intersects plane
+        let intersection_point = line.point_from_t(d);
+
+        //finding if it it lies withing the triangle (this is where we leave wikipedia)
+        let mut inside = true;
+
+        for i in 0..3 {
+            let theta = Point::angle_between(
+                    &self.points[i],
+                    &self.points[ (i + 1) % 3 ],
+                    &self.points[ (i + 2) % 3 ],
+                );
+            let rho = Point::angle_between(
+                    &intersection_point,
+                    &self.points[i],
+                    &self.points[ (i + 1) % 3 ]
+                );
+
+            if rho > theta { inside = false }
+        }
+
+        (inside, intersection_point)
+        
     }
 
-    pub fn random(width: u32, height: u32) ->  Tri {
+
+
+    pub fn random(width: u32, height: u32, depth: u32) ->  Tri {
         Tri::new(
-            Point::random(width as i32,height as i32),
-            Point::random(width as i32,height as i32),
-            Point::random(width as i32,height as i32),
+            Point::random(width as i32,height as i32, depth as i32),
+            Point::random(width as i32,height as i32, depth as i32),
+            Point::random(width as i32,height as i32, depth as i32),
             [
                 rand::random::<u8>(),
                 rand::random::<u8>(),
@@ -246,148 +287,4 @@ impl Tri {
 }
 
 
-
-// #[derive(PartialEq,Debug)]
-// struct math_line {
-//     //in the event it is a vertical line
-//     is_vertical: bool,
-//     /*line in the form y = mx + b, except when it is vertical.
-//     when it is vertical, b represents the x value */ 
-//     m: f64,
-//     b: f64
-    
-// }
-
-
-// impl math_line {
-//     fn new(A: &Point, B: &Point) -> math_line {
-        
-//         let rise = B.y() - A.y();
-//         let run = B.x() - A.x();
-//         if run == 0.0 {
-//             math_line { 
-//                 is_vertical: true,
-//                 m: 0.0,
-//                 b: A.x() as f64,
-//             }
-//         } else {
-//             let m = rise as f64 / run as f64;
-//             let b = A.y() as f64 - (m * A.x() as f64);
-//             math_line {m, b, is_vertical: false}
-//         }
-        
-//     }
-
-//     // fn from_m_and_b(m: f64, b: f64) -> math_line {
-//     //     math_line {m, b}
-//     // }
-
-//     fn y_from_x(&self, x: f32) -> f64 {
-//         (self.m * x as f64) + self.b
-//     }
-
-//     /*returns true if the point is above the line, or, if the line is
-//     vertical, returns true if it is to the right*/
-//     fn is_above(&self, P: &Point) -> bool {
-//         if self.is_vertical {
-//             let to_the_right: bool = P.x() as f64 > self.b;
-//             return to_the_right;
-//         } else {
-//             let fx = self.y_from_x( P.x() );
-//             let is_above = P.y() as f64 > fx;
-//             //print!("P.x: {}\nP.y: {}\nfx: {}\nis_above: {}\n",P.x, P.y, fx, is_above);
-//             is_above
-//         }
-//     }
-// }
-
-
-// #[cfg(test)]
-// mod tests {
-    
-//     use Point;
-//     use math_line;
-//     use Tri;
-
-//     #[test]
-//     fn correct_line() {
-//         let A = Point::new(200,200);
-//         let B = Point::new(400,400);
-//         let R = Point::new(200,200);
-//         let S = Point::new(400,300);
-//         let AB = math_line::new(&A,&B);
-//         let RS = math_line::new(&R,&S);
-//         print!("AB: {:?}\nRS: {:?}", AB, RS);
-
-//         assert_eq!(AB.m, 1.0);
-//         assert_eq!(AB.b, 0.0);
-//         assert_eq!(RS.m, 0.5);
-//         //assert_eq!(RS.b, 0.0);
-//     }
-
-
-//     #[test]
-//     // fn correct_y_from_x_from_m_and_b() {
-//     //     let line = math_line::from_m_and_b(3.2, 2.1);
-//     //     let output = line.y_from_x(0);
-//     //     assert_eq!(output, 2.1);
-//     // }
-
-//     // #[test]
-//     // fn correct_line_from_points() {
-//     //     let A = Point::new(12,5);
-//     //     let B = Point::new(30,6);
-//     //     let output = math_line::new(&A, &B);
-//     //     let correct = math_line::from_m_and_b(0.05555555555555555,4.333333333333333);
-//     //     print!("{:?}", output);
-//     //     //assert_eq!(output, correct);
-//     // }
-
-//     #[test]
-//     fn is_above_is_correct() {
-//         let P = Point::new(100,100);
-//         let A = Point::new(12,5);
-//         let B = Point::new(30,6);
-//         let line = math_line::new(&A,&B);
-//         let output = line.is_above(&P);
-        
-//         assert_eq!(output, true);
-        
-//     }
-//     #[test]
-//     fn is_below_is_correct() {
-//         let P = Point::new(12,1);
-//         let A = Point::new(12,5);
-//         let B = Point::new(30,6);
-//         let line = math_line::new(&A,&B);
-//         print!("{:?}\n", line);
-//         let output = line.is_above(&P);
-
-//         assert_eq!(output, false);
-//     }
-
-//     #[test]
-//     fn is_in_triangle() {
-//         let A = Point::new(1,10);
-//         let B = Point::new(34,8);
-//         let C = Point::new(20,0);
-//         let triangle = Tri::new(A,B,C,[0,0,0]);
-//         let P = Point::new(20, 5);
-//         let output = triangle.is_inside(&P);
-//         assert_eq!(output, true);
-//     }
-//     #[test]
-//     fn is_in_vertical_tri() {
-//         let triangle = Tri::new(
-//             Point::new(100,100),
-//             Point::new(0,100),
-//             Point::new(100,0),
-//             [100,100,255]
-//         );
-//         let P = Point::new(75,75);
-//         let output = triangle.is_inside(&P);
-//         assert_eq!(output, true);
-//     }
-    
-// }
 

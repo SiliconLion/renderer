@@ -1,5 +1,5 @@
 extern crate renderer;
-use renderer::Point;
+use renderer::*;
 //use renderer::Tri;
 
 use std::time::Duration;
@@ -21,6 +21,7 @@ pub fn main() {
 
     let width = 800;
     let height = 600;
+    let depth = 900;
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
@@ -62,71 +63,75 @@ pub fn main() {
 
     
 
-//     'running: loop {
-//         let triangles = vec![
-//             Tri::random(width as u32, height as u32),
-//             Tri::random(width as u32, height as u32),
-//             Tri::random(width as u32, height as u32),
-//             Tri::random(width as u32, height as u32),
-//             Tri::random(width as u32, height as u32),
-//             Tri::random(width as u32, height as u32)
-//             ];
-//         unsafe{ 
-//             clear(pixels, [100,100,255]);
-//             pixel_manip(pixels, &triangles, width as i32, height as i32);
-//             }
+    'running: loop {
+        let triangles = vec![
+            Tri::random(width as u32, height as u32, depth as u32),
+            Tri::random(width as u32, height as u32, depth as u32),
+            Tri::random(width as u32, height as u32, depth as u32),
+            Tri::random(width as u32, height as u32, depth as u32),
+            Tri::random(width as u32, height as u32, depth as u32),
+            ];
+        unsafe{ 
+            clear(pixels, [100,100,255]);
+            pixel_manip(pixels, &triangles, width as i32, height as i32);
+            }
 
-//         texture.with_lock(None, test_closure).unwrap();
-//         canvas.clear();
-//         canvas.copy(&texture, None, None);
-//         canvas.present();
+        texture.with_lock(None, test_closure).unwrap();
+        canvas.clear();
+        canvas.copy(&texture, None, None);
+        canvas.present();
 
-//         for event in event_pump.poll_iter() {
-//             match event {
-//                 Event::Quit{..} => break 'running,
-//                 _ => {}
-//             }
-//         }
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit{..} => break 'running,
+                _ => {}
+            }
+        }
 
-//         //spin_sleep::sleep(Duration::new(1, 12_550_000));
-//     }
-// }
+        //spin_sleep::sleep(Duration::new(1, 12_550_000));
+    }
+}
 
 
-// unsafe fn pixel_manip(buffer: *mut Vec<u8>, triangles: &Vec<Tri>, width: i32, height: i32) {
-//     //a convient way to index. instead of i = (col * height * 3) + row + channel; 
-//     // should be less memory reads, but i dont really know. its just a convience thing
-//     let mut counter = 0;
-//     //could be reinitialized for every pixel, but better to just modify it
-//     let mut color = [0,0,0];
-//     //counting which row
-//     for row in 0..height {
-//          //counting how far down the row
-//         for col in 0..width {
+unsafe fn pixel_manip(buffer: *mut Vec<u8>, triangles: &Vec<Tri>, width: i32, height: i32) {
+    //a convient way to index. instead of i = (col * height * 3) + row + channel; 
+    // should be less memory reads, but i dont really know. its just a convience thing
+    let mut counter = 0;
+    //could be reinitialized for every pixel, but better to just modify it
+    let mut color = [0,0,0];
+    //counting which row
+    for row in 0..height {
+         //counting how far down the row
+        for col in 0..width {
 
-//             //sets "color" to the current color of the pixel
-//             color = [ (*buffer)[counter],(*buffer)[counter +1],(*buffer)[counter +2] ];
+            //sets "color" to the current color of the pixel
+            color = [ (*buffer)[counter],(*buffer)[counter +1],(*buffer)[counter +2] ];
 
-//             /*previous 2 loops get us to the right pixel. 
-//             this itterator checks every Tri to see if the pixel is in it.
-//             will modify color to be the color of the last tri the pixel is within.*/
-//             for tri in triangles {
-//                 let is_in_tri = tri.is_inside(&Point::new(col as  f32,row as f32,0.0));
-//                 if is_in_tri {
-//                     color = tri.color;
-//                 }
-//             }
+            //a line originating at the pixel, and moving straight out in the z direction
+            let line = Line::new( 
+                        Point::new(0.0, 0.0 , 1.0), Point::new(col as f32, row as f32, 0.0)
+                    );
+                    
+            /*previous 2 loops get us to the right pixel. 
+            this itterator checks every Tri to see if the pixel is in it.
+            will modify color to be the color of the last tri the pixel is within.*/
+            for tri in triangles {
+                let (is_in_tri, location) = tri.intersects(&line);
+                if is_in_tri {
+                    color = tri.color;
+                }
+            }
         
-//             //counting which color channel (RGB)
-//             for channel in 0..3 {
+            //counting which color channel (RGB)
+            for channel in 0..3 {
                 
-//                 let mut pix = &mut (*buffer)[ counter];
-//                 *pix = color[channel];
+                let mut pix = &mut (*buffer)[ counter];
+                *pix = color[channel];
                 
-//                 counter += 1;
-//             }
-//         }
-//     }
+                counter += 1;
+            }
+        }
+    }
 
 }
 
