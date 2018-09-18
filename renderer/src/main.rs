@@ -9,7 +9,6 @@ extern crate spin_sleep;
 extern crate rand;
 use rand::random;
 
-use std::cell::RefCell;
 
 extern crate sdl2;
 use sdl2::pixels::PixelFormatEnum;
@@ -19,8 +18,8 @@ use sdl2::keyboard::Keycode;
 
 pub fn main() {
 
-    let width = 800;
-    let height = 600;
+    let width = 100;
+    let height = 100;
     let depth = 900;
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -52,25 +51,14 @@ pub fn main() {
             
         };
     }
-
-    let a = Point::new(1.0 ,1.0 ,1.0 );
-    let b = Point::new(1.0 ,1.0 ,1.0 );
-    let c = a + b;
-    print!("{:?}", c);
-
-
     
 
-    
+    let triangles = Tri::vec_from_stl(String::from("assets/bulbasaur_starter_1gen_flowalistik.STL"));
 
     'running: loop {
-        let triangles = vec![
-            Tri::random(width as u32, height as u32, depth as u32),
-            Tri::random(width as u32, height as u32, depth as u32),
-            Tri::random(width as u32, height as u32, depth as u32),
-            Tri::random(width as u32, height as u32, depth as u32),
-            Tri::random(width as u32, height as u32, depth as u32),
-            ];
+
+        
+        
         unsafe{ 
             clear(pixels, [100,100,255]);
             pixel_manip(pixels, &triangles, width as i32, height as i32);
@@ -111,12 +99,12 @@ unsafe fn pixel_manip(buffer: *mut Vec<u8>, triangles: &Vec<Tri>, width: i32, he
             let line = Line::new( 
                         Point::new(0.0, 0.0 , 1.0), Point::new(col as f32, row as f32, 0.0)
                     );
-                    
+
             /*previous 2 loops get us to the right pixel. 
             this itterator checks every Tri to see if the pixel is in it.
             will modify color to be the color of the last tri the pixel is within.*/
             for tri in triangles {
-                let (is_in_tri, location) = tri.intersects(&line);
+                let (is_in_tri, _location) = tri.intersects(&line);
                 if is_in_tri {
                     color = tri.color;
                 }
