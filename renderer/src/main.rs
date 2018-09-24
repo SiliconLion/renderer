@@ -1,6 +1,6 @@
 extern crate renderer;
 use renderer::*;
-//use renderer::Tri;
+use geometry::*;
 
 use std::time::Duration;
 
