@@ -1,6 +1,7 @@
 extern crate renderer;
 use renderer::*;
 use geometry::*;
+use stl;
 
 use std::time::Duration;
 
@@ -18,8 +19,8 @@ use sdl2::keyboard::Keycode;
 
 pub fn main() {
 
-    let width = 100;
-    let height = 100;
+    let width = 800;
+    let height = 800;
     let depth = 900;
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -53,7 +54,7 @@ pub fn main() {
     }
     
 
-    let triangles = Tri::vec_from_stl(String::from("assets/bulbasaur_starter_1gen_flowalistik.STL"));
+    let triangles = stl::vec_from_stl(&String::from("/Users/davidsullivan/Desktop/Programing/Rust/renderer/renderer/src/assets/bulbasaur_starter_1gen_flowalistik.STL"));
 
     'running: loop {
 

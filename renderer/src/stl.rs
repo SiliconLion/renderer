@@ -1,44 +1,54 @@
-extern crate stl_handler;
-use geometry::*; 
-//use super::macros::*;
+use std::fs::OpenOptions;
+use stl_io;
+use geometry::*;
 
-impl Point {
-    
-    fn from_stl_vert(vert: &stl_handler::Vertex) -> Point {
-        let vert = *vert;
-        point!(vert.x(), vert.y(), vert.z())
-    }
-    
+
+fn point_from_stl(v: &stl_io::Vertex) -> Point {
+    let v = *v;
+    //Point{ coords: v}
+    Point::new(
+        (v[0] * 10.0) + 100.0,
+        (v[1] * 10.0) + 100.0,
+        (v[2] * 10.0) + 100.0
+        )
 }
 
-impl Tri {
 
-    fn from_stl( stl_tri: &stl_handler::Triangle) -> Tri {
-        let normal = Point::from_stl_vert(&stl_tri.normal());
-        let verts = stl_tri.verts();
-        let points = [
-            Point::from_stl_vert(&verts[0]),
-            Point::from_stl_vert(&verts[1]),
-            Point::from_stl_vert(&verts[2])
-        ];
-
-        //should actually decode the atribute bytes but whatever
-        let color = [255, 0, 0];
-
-        Tri { normal, points, color}
+fn tri_from_indexed_triangle(
+            vert_locations: [usize; 3],  
+            n: stl_io::Normal,
+            verts: &Vec<stl_io::Vertex>) -> Tri {
+    let mut p = Vec::new();
+    for i in 0..3 {
+        let vert = &verts[vert_locations[i]];
+        p.push(point_from_stl(vert));
     }
 
-    pub fn vec_from_stl(path: String) -> Vec<Tri> {
-        let (_,_, triangles) = stl_handler::decode_stl(path).expect("bad file path probs");
+    let normal = point_from_stl(&n);
+    Tri {points: [p[0], p[1], p[2]], normal, color: [
+        (n[0] * 255.0) as u8,
+        (n[1] * 255.0) as u8,
+        (n[2] * 255.0) as u8
+    ] }
+}
 
-        let mut buffer: Vec<Tri> = Vec::new();
 
-        for t in triangles {
-            buffer.push(Tri::from_stl(&t));
-        }
+pub fn vec_from_stl(path: &String) -> Vec<Tri> {
+    let mut file = OpenOptions::new()
+                .read(true)
+                .open(path)
+                .unwrap();
+                
+    let stl_io::IndexedMesh {vertices: master_list, faces} = stl_io::read_stl(&mut file).unwrap();
 
-        print!("{:?}", buffer);
-        buffer
+    let mut tris: Vec<Tri> = Vec::new();
+    for i in 0..faces.len() {
+        let t = &faces[i];
+        tris.push(tri_from_indexed_triangle(
+            t.vertices, t.normal, &master_list
+        ));
     }
+
+    tris
 }
 

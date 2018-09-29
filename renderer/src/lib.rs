@@ -1,5 +1,6 @@
 
 extern crate rand;
+extern crate stl_io;
 // extern crate num;
 #[macro_use]
 pub mod macros;
