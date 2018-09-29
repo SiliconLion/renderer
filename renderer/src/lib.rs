@@ -8,6 +8,7 @@ pub mod geometry;
 pub mod math;
 pub mod stl;
 pub mod tests;
+pub mod rendering;
 
 
 

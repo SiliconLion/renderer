@@ -7,9 +7,9 @@ fn point_from_stl(v: &stl_io::Vertex) -> Point {
     let v = *v;
     //Point{ coords: v}
     Point::new(
-        (v[0] * 10.0) + 100.0,
-        (v[1] * 10.0) + 100.0,
-        (v[2] * 10.0) + 100.0
+        v[0] * 10.0,
+        v[1] * 10.0,
+        v[2] * 10.0
         )
 }
 
