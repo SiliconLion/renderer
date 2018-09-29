@@ -25,11 +25,11 @@ fn tri_from_indexed_triangle(
     }
 
     let normal = point_from_stl(&n);
-    Tri {points: [p[0], p[1], p[2]], normal, color: [
-        (n[0] * 255.0) as u8,
-        (n[1] * 255.0) as u8,
-        (n[2] * 255.0) as u8
-    ] }
+
+    let greyscale = (( (n[0] + n[1] + n[2]) /3.0 ) * 255.0) as u8;
+    let color = [greyscale, greyscale, greyscale];
+
+    Tri {points: [p[0], p[1], p[2]], normal, color}
 }
 
 

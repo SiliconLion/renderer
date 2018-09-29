@@ -4,6 +4,7 @@ use renderer::*;
 use geometry::*;
 use stl;
 use rendering::{pixel_manip, clear};
+use translations::*;
 
 use std::time::Duration;
 
@@ -56,11 +57,11 @@ pub fn main() {
     }
     
 
-    let triangles = stl::vec_from_stl(&String::from("/Users/davidsullivan/Desktop/Programing/Rust/renderer/renderer/src/assets/bulbasaur_starter_1gen_flowalistik.STL"));
+    let mut triangles = stl::vec_from_stl(&String::from("/Users/davidsullivan/Desktop/Programing/Rust/renderer/renderer/src/assets/charmander_starter_1gen_flowalistik.STL"));
 
     'running: loop {
 
-        
+        translations::translate_triangles(10.0, 30.0, 0.0, &mut triangles);
         
         unsafe{ 
             clear(pixels, [100,100,255]);
