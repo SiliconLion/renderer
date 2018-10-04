@@ -1,6 +1,14 @@
 use geometry::*;
 use math::*;
 
+//  ######   ######  ######## ##    ## ######## 
+// ##    ## ##    ## ##       ###   ## ##       
+// ##       ##       ##       ####  ## ##       
+//  ######  ##       ######   ## ## ## ######   
+//       ## ##       ##       ##  #### ##       
+// ##    ## ##    ## ##       ##   ### ##       
+//  ######   ######  ######## ##    ## ########
+
 
 fn translate_point(delta_x: f32, delta_y: f32, delta_z: f32, p: &mut Point) {
     p.coords[0] += delta_x;
@@ -44,3 +52,6 @@ pub fn flip_z(triangles: &mut Vec<Tri>) {
         tri.normal *= Point{coords: [-1.0, -1.0, -1.0]};
     }
 }
+
+
+

@@ -91,10 +91,11 @@ pub fn main() {
         _ => println!("something went wrong with the file")
     }
     
+     //spin_sleep::sleep(Duration::new(1, 12_550_000));
 
     let mut triangles = stl::vec_from_stl(&path);
     
-    transformations::scale(0.1, &mut triangles);
+    transformations::scale(3.0, &mut triangles);
     transformations::translate_triangles(0.0, 300.0, 200.0, &mut triangles);
     
 
