@@ -4,7 +4,7 @@ use renderer::*;
 use geometry::*;
 use stl;
 use rendering::{pixel_manip, clear};
-use translations::*;
+use transformations::*;
 
 use std::time::Duration;
 
@@ -20,7 +20,26 @@ use sdl2::rect::Rect;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
+extern crate nfd;
+
 pub fn main() {
+
+// ########  ######## ##    ## ########  ######## ########  ######## ########             
+// ##     ## ##       ###   ## ##     ## ##       ##     ## ##       ##     ##            
+// ##     ## ##       ####  ## ##     ## ##       ##     ## ##       ##     ##            
+// ########  ######   ## ## ## ##     ## ######   ########  ######   ########             
+// ##   ##   ##       ##  #### ##     ## ##       ##   ##   ##       ##   ##              
+// ##    ##  ##       ##   ### ##     ## ##       ##    ##  ##       ##    ##             
+// ##     ## ######## ##    ## ########  ######## ##     ## ######## ##     ##            
+
+
+// ########   #######   #######  ########  ######  ######## ########     ###    ########  
+// ##     ## ##     ## ##     ##    ##    ##    ##    ##    ##     ##   ## ##   ##     ## 
+// ##     ## ##     ## ##     ##    ##    ##          ##    ##     ##  ##   ##  ##     ## 
+// ########  ##     ## ##     ##    ##     ######     ##    ########  ##     ## ########  
+// ##     ## ##     ## ##     ##    ##          ##    ##    ##   ##   ######### ##        
+// ##     ## ##     ## ##     ##    ##    ##    ##    ##    ##    ##  ##     ## ##        
+// ########   #######   #######     ##     ######     ##    ##     ## ##     ## ##      
 
     let width = 800;
     let height = 800;
@@ -57,12 +76,49 @@ pub fn main() {
     }
     
 
-    let mut triangles = stl::vec_from_stl(&String::from("/Users/davidsullivan/Desktop/Programing/Rust/renderer/renderer/src/assets/charmander_starter_1gen_flowalistik.STL"));
 
+
+
+    let result = nfd::open_file_dialog(None, None).unwrap_or_else(|e| {
+  	    panic!(e);
+    });
+
+    let mut path = String::new();
+    match result {
+        nfd::Response::Okay(file_path) => path = file_path,
+        // nfd::Response::OkayMultiple(files) => println!("Files {:?}", files),
+        // nfd::Response::Cancel => println!("User canceled"),
+        _ => println!("something went wrong with the file")
+    }
+    
+
+    let mut triangles = stl::vec_from_stl(&path);
+    
+    transformations::scale(0.1, &mut triangles);
+    transformations::translate_triangles(0.0, 300.0, 200.0, &mut triangles);
+    
+
+
+// ########  ##     ## ##    ## ##    ## #### ##    ##  ######   
+// ##     ## ##     ## ###   ## ###   ##  ##  ###   ## ##    ##  
+// ##     ## ##     ## ####  ## ####  ##  ##  ####  ## ##        
+// ########  ##     ## ## ## ## ## ## ##  ##  ## ## ## ##   #### 
+// ##   ##   ##     ## ##  #### ##  ####  ##  ##  #### ##    ##  
+// ##    ##  ##     ## ##   ### ##   ###  ##  ##   ### ##    ##  
+// ##     ##  #######  ##    ## ##    ## #### ##    ##  ######   
+
+
+// ##        #######   #######  ########                         
+// ##       ##     ## ##     ## ##     ##                        
+// ##       ##     ## ##     ## ##     ##                        
+// ##       ##     ## ##     ## ########                         
+// ##       ##     ## ##     ## ##                               
+// ##       ##     ## ##     ## ##                               
+// ########  #######   #######  ##         
     'running: loop {
 
-        translations::translate_triangles(10.0, 30.0, 0.0, &mut triangles);
-        
+        //transformations::flip_z(&mut triangles);
+
         unsafe{ 
             clear(pixels, [100,100,255]);
             pixel_manip(pixels, &triangles, width as i32, height as i32);

@@ -50,6 +50,7 @@ impl ops::Sub for Point {
 }
 
 impl ops::SubAssign for Point {
+    
     fn sub_assign(&mut self, other: Point) {
         // *self = Point { coords: [
         //     self.x() - other.x(), 
@@ -57,6 +58,43 @@ impl ops::SubAssign for Point {
         //     self.z() - other.z()
         // ]};
         *self = *self - other;
+    }
+}
+
+impl ops::Mul for Point {
+    type Output = Point;
+
+    fn mul(self, other: Point) -> Point {
+        Point { coords: [
+            self.x() * other.x(), 
+            self.y() * other.y(), 
+            self.z() * other.z()
+        ]}
+    }
+}
+
+impl ops::MulAssign for Point {
+    fn mul_assign(&mut self, other: Point) {
+        *self = *self * other;
+    }
+}
+
+
+impl ops::Div for Point {
+    type Output = Point;
+
+    fn div(self, other: Point) -> Point {
+        Point { coords: [
+            self.x() / other.x(), 
+            self.y() / other.y(), 
+            self.z() / other.z()
+        ]}
+    }
+}
+
+impl ops::DivAssign for Point {
+    fn div_assign(&mut self, other: Point) {
+        *self = *self / other;
     }
 }
 
@@ -189,12 +227,12 @@ impl Tri {
                     &self.points[i],
                     &self.points[ (i + 1) % 3 ],
                     &self.points[ (i + 2) % 3 ],
-                );
+                ).abs();
             let rho = Point::angle_between(
                     &self.points[i],
                     &self.points[ (i + 1) % 3 ],
                     &intersection_point
-                );
+                ).abs();
 
             if rho > theta { inside = false }
         }
