@@ -64,10 +64,42 @@ pub struct Line {
 }
 
 impl Line {
-    pub   fn new(vector: Point, origin: Point) -> Line {
+    pub fn new(vector: Point, origin: Point) -> Line {
         Line { vector, origin}
     }
+    pub fn from_coords(p1: Point, p2: Point) -> Line {
+        let vector = p2 - p1;
+        let origin = p1;
+        Line {vector, origin}
+    }
 }
+
+// ##       #### ##    ## ########                                  
+// ##        ##  ###   ## ##                                        
+// ##        ##  ####  ## ##                                        
+// ##        ##  ## ## ## ######                                    
+// ##        ##  ##  #### ##                                        
+// ##        ##  ##   ### ##                                        
+// ######## #### ##    ## ########     
+
+
+//  ######  ########  ######   ##     ## ######## ##    ## ######## 
+// ##    ## ##       ##    ##  ###   ### ##       ###   ##    ##    
+// ##       ##       ##        #### #### ##       ####  ##    ##    
+//  ######  ######   ##   #### ## ### ## ######   ## ## ##    ##    
+//       ## ##       ##    ##  ##     ## ##       ##  ####    ##    
+// ##    ## ##       ##    ##  ##     ## ##       ##   ###    ##    
+//  ######  ########  ######   ##     ## ######## ##    ##    ## 
+
+pub struct LineSegment {
+    pub line: Line,
+    pub start: Point,
+    pub end: Point
+}
+
+// impl LineSegment {
+//     pub fn new(start: Point, end: Point)
+// }
 
 
 
