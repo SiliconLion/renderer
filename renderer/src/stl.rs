@@ -6,11 +6,7 @@ use geometry::*;
 fn point_from_stl(v: &stl_io::Vertex) -> Point {
     let v = *v;
     //Point{ coords: v}
-    Point::new(
-        v[0] * 10.0,
-        v[1] * 10.0,
-        v[2] * 10.0
-        )
+    Point::new(v[0], v[1], v[2])
 }
 
 
@@ -26,8 +22,12 @@ fn tri_from_indexed_triangle(
 
     let normal = point_from_stl(&n);
 
-    let greyscale = (( (n[0] + n[1] + n[2]) /3.0 ) * 255.0) as u8;
-    let color = [greyscale, greyscale, greyscale];
+    //let greyscale = (( (n[0] + n[1] + n[2]) /3.0 ) * 255.0) as u8;
+    let color = [
+       (n[0] * 255.0 ) as u8,
+       (n[1] * 255.0 ) as u8,
+       (n[2] * 255.0 ) as u8
+    ];
 
     Tri {points: [p[0], p[1], p[2]], normal, color}
 }

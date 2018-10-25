@@ -50,6 +50,7 @@ impl ops::Sub for Point {
 }
 
 impl ops::SubAssign for Point {
+    
     fn sub_assign(&mut self, other: Point) {
         // *self = Point { coords: [
         //     self.x() - other.x(), 
@@ -57,6 +58,43 @@ impl ops::SubAssign for Point {
         //     self.z() - other.z()
         // ]};
         *self = *self - other;
+    }
+}
+
+impl ops::Mul for Point {
+    type Output = Point;
+
+    fn mul(self, other: Point) -> Point {
+        Point { coords: [
+            self.x() * other.x(), 
+            self.y() * other.y(), 
+            self.z() * other.z()
+        ]}
+    }
+}
+
+impl ops::MulAssign for Point {
+    fn mul_assign(&mut self, other: Point) {
+        *self = *self * other;
+    }
+}
+
+
+impl ops::Div for Point {
+    type Output = Point;
+
+    fn div(self, other: Point) -> Point {
+        Point { coords: [
+            self.x() / other.x(), 
+            self.y() / other.y(), 
+            self.z() / other.z()
+        ]}
+    }
+}
+
+impl ops::DivAssign for Point {
+    fn div_assign(&mut self, other: Point) {
+        *self = *self / other;
     }
 }
 
@@ -99,6 +137,26 @@ impl Point {
         components.sqrt()
     }
 
+
+    pub fn normal_from(a: &Point, b: &Point, c: &Point ) -> Point {
+        let a = *a; 
+        let b = *b;
+        let c = *c;
+
+        let p = a - b;
+        let r = c - b;
+        r.cross_product(&p)
+    }
+
+}
+
+
+
+
+
+
+
+impl Point {
     // angle in the form ∠abc
     pub fn angle_between(a: &Point, b: &Point, c: &Point ) -> f32 {
         let a = *a; 
@@ -118,14 +176,15 @@ impl Point {
         theta
     }
 
-    pub fn normal_from(a: &Point, b: &Point, c: &Point ) -> Point {
-        let a = *a; 
-        let b = *b;
-        let c = *c;
+    pub fn distance_between(a: &Point, b: &Point) -> f32 {
+        let delta_x = a.x() - b.x();
+        let delta_y = a.y() - b.y();
+        let delta_z = a.z() - b.z();
 
-        let p = a - b;
-        let r = c - b;
-        r.cross_product(&p)
+        let sum_of_squares = (delta_x * delta_x) + (delta_y * delta_y) + (delta_z * delta_z);
+        let distance = sum_of_squares.sqrt();
+        
+        distance
     }
 
 }
@@ -152,6 +211,15 @@ impl Line {
         
         p
         
+    }
+
+//seems to be wrong. validate correctness before using
+//assumes point is on line. answer is meaningless if it isnt
+    pub fn t_from_point(&self, p: Point) -> f32 {
+        let offset = p.x() - self.origin.x();
+        let t = offset / self.vector.x();
+
+        t
     }
 }
 
@@ -189,12 +257,12 @@ impl Tri {
                     &self.points[i],
                     &self.points[ (i + 1) % 3 ],
                     &self.points[ (i + 2) % 3 ],
-                );
+                ).abs();
             let rho = Point::angle_between(
                     &self.points[i],
                     &self.points[ (i + 1) % 3 ],
                     &intersection_point
-                );
+                ).abs();
 
             if rho > theta { inside = false }
         }
@@ -203,5 +271,6 @@ impl Tri {
         
     }
 
+    
     
 }
