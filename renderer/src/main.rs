@@ -1,26 +1,50 @@
 extern crate renderer;
-use renderer::Point;
-use renderer::Tri;
+use renderer::*;
 
-use std::time::Duration;
+use geometry::*;
+use stl;
+use rendering::{render, clear};
+// use transformations::*;
 
-extern crate spin_sleep;
+// use std::time::Duration;
+
+// extern crate spin_sleep;
 
 extern crate rand;
-use rand::random;
+// use rand::random;
 
-use std::cell::RefCell;
 
 extern crate sdl2;
 use sdl2::pixels::PixelFormatEnum;
-use sdl2::rect::Rect;
+// use sdl2::rect::Rect;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
+extern crate nfd;
+
 pub fn main() {
 
+     
+//  ######  ########  ##                                                                               
+// ##    ## ##     ## ##                                                                               
+// ##       ##     ## ##                                                                               
+//  ######  ##     ## ##                                                                               
+//       ## ##     ## ##                                                                               
+// ##    ## ##     ## ##                                                                               
+//  ######  ########  ########   
+
+// ########   #######  #### ##       ######## ########  ########  ##          ###    ######## ######## 
+// ##     ## ##     ##  ##  ##       ##       ##     ## ##     ## ##         ## ##      ##    ##       
+// ##     ## ##     ##  ##  ##       ##       ##     ## ##     ## ##        ##   ##     ##    ##       
+// ########  ##     ##  ##  ##       ######   ########  ########  ##       ##     ##    ##    ######   
+// ##     ## ##     ##  ##  ##       ##       ##   ##   ##        ##       #########    ##    ##       
+// ##     ## ##     ##  ##  ##       ##       ##    ##  ##        ##       ##     ##    ##    ##       
+// ########   #######  #### ######## ######## ##     ## ##        ######## ##     ##    ##    ########
+
+
     let width = 800;
-    let height = 600;
+    let height = 800;
+    // let depth = 900;
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
@@ -37,12 +61,12 @@ pub fn main() {
     let texture_creator = canvas.texture_creator();
     let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGB24, width , height ).unwrap();
 
-    let mut test_closure;
+    let test_closure;
     //width * height is number of pixels, then 3 color channels per pixel
     let pixels = Box::new( vec![30; (width * height * 3) as usize] ) ;
     let pixels = Box::into_raw(pixels);
     unsafe {
-        test_closure = move |buffer: &mut [u8], pitch: usize| {
+        test_closure = move |buffer: &mut [u8], _pitch: usize| {
             
             for (i, pix) in buffer.into_iter().enumerate() {
                 
@@ -51,23 +75,85 @@ pub fn main() {
             
         };
     }
-
     
 
-    
 
+// ########  ######## ##    ## ########  ######## ########  ######## ########             
+// ##     ## ##       ###   ## ##     ## ##       ##     ## ##       ##     ##            
+// ##     ## ##       ####  ## ##     ## ##       ##     ## ##       ##     ##            
+// ########  ######   ## ## ## ##     ## ######   ########  ######   ########             
+// ##   ##   ##       ##  #### ##     ## ##       ##   ##   ##       ##   ##              
+// ##    ##  ##       ##   ### ##     ## ##       ##    ##  ##       ##    ##             
+// ##     ## ######## ##    ## ########  ######## ##     ## ######## ##     ##            
+
+
+// ########   #######   #######  ########  ######  ######## ########     ###    ########  
+// ##     ## ##     ## ##     ##    ##    ##    ##    ##    ##     ##   ## ##   ##     ## 
+// ##     ## ##     ## ##     ##    ##    ##          ##    ##     ##  ##   ##  ##     ## 
+// ########  ##     ## ##     ##    ##     ######     ##    ########  ##     ## ########  
+// ##     ## ##     ## ##     ##    ##          ##    ##    ##   ##   ######### ##        
+// ##     ## ##     ## ##     ##    ##    ##    ##    ##    ##    ##  ##     ## ##        
+// ########   #######   #######     ##     ######     ##    ##     ## ##     ## ## 
+
+    let result = nfd::open_file_dialog(None, None).unwrap_or_else(|e| {
+  	    panic!(e);
+    });
+
+    let mut path = String::new();
+    match result {
+        nfd::Response::Okay(file_path) => path = file_path,
+        // nfd::Response::OkayMultiple(files) => println!("Files {:?}", files),
+        // nfd::Response::Cancel => println!("User canceled"),
+        _ => println!("something went wrong with the file")
+    }
+
+     //spin_sleep::sleep(Duration::new(1, 12_550_000));
+
+    let mut triangles = stl::vec_from_stl(&path);
+    let mut camera = rendering::ViewPort::new_from_window_dimentions(
+                width,
+                height
+                );
+    
+  
+
+
+// ########  ##     ## ##    ## ##    ## #### ##    ##  ######   
+// ##     ## ##     ## ###   ## ###   ##  ##  ###   ## ##    ##  
+// ##     ## ##     ## ####  ## ####  ##  ##  ####  ## ##        
+// ########  ##     ## ## ## ## ## ## ##  ##  ## ## ## ##   #### 
+// ##   ##   ##     ## ##  #### ##  ####  ##  ##  #### ##    ##  
+// ##    ##  ##     ## ##   ### ##   ###  ##  ##   ### ##    ##  
+// ##     ##  #######  ##    ## ##    ## #### ##    ##  ######   
+
+
+// ##        #######   #######  ########                         
+// ##       ##     ## ##     ## ##     ##                        
+// ##       ##     ## ##     ## ##     ##                        
+// ##       ##     ## ##     ## ########                         
+// ##       ##     ## ##     ## ##                               
+// ##       ##     ## ##     ## ##                               
+// ########  #######   #######  ##         
+
+
+    transformations::scale(5.0, &mut triangles);
+    transformations::translate_triangles(400.0, 40.0, 400.0, &mut triangles);
+    
     'running: loop {
-        let triangles = vec![
-            Tri::random(width as u32, height as u32),
-            Tri::random(width as u32, height as u32),
-            Tri::random(width as u32, height as u32),
-            Tri::random(width as u32, height as u32),
-            Tri::random(width as u32, height as u32),
-            Tri::random(width as u32, height as u32)
-            ];
+
+        // transformations::flip_z(&mut triangles);
+        // //transformations::translate_triangles(15.0, 10.0, 0.0, &mut triangles);
+        // let camera_angle = camera.ray_direction + point!(0.05, 0, -0.05);
+        // camera = rendering::ViewPort::new_from_window_dimentions(
+        //         camera_angle,
+        //         width,
+        //         height
+        //         );
+
         unsafe{ 
             clear(pixels, [100,100,255]);
-            pixel_manip(pixels, &triangles, width as i32, height as i32);
+            render(&camera, pixels, &triangles);
+            // pixel_manip(pixels, &triangles, width as i32, height as i32);
             }
 
         texture.with_lock(None, test_closure).unwrap();
@@ -87,53 +173,4 @@ pub fn main() {
 }
 
 
-unsafe fn pixel_manip(buffer: *mut Vec<u8>, triangles: &Vec<Tri>, width: i32, height: i32) {
-    //a convient way to index. instead of i = (col * height * 3) + row + channel; 
-    // should be less memory reads, but i dont really know. its just a convience thing
-    let mut counter = 0;
-    //could be reinitialized for every pixel, but better to just modify it
-    let mut color = [0,0,0];
-    //counting which row
-    for row in 0..height {
-         //counting how far down the row
-        for col in 0..width {
 
-            //sets "color" to the current color of the pixel
-            color = [ (*buffer)[counter],(*buffer)[counter +1],(*buffer)[counter +2] ];
-
-            /*previous 2 loops get us to the right pixel. 
-            this itterator checks every Tri to see if the pixel is in it.
-            will modify color to be the color of the last tri the pixel is within.*/
-            for tri in triangles {
-                let is_in_tri = tri.is_inside(&Point::new(col,row));
-                if is_in_tri {
-                    color = tri.color;
-                }
-            }
-        
-            //counting which color channel (RGB)
-            for channel in 0..3 {
-                
-                let mut pix = &mut (*buffer)[ counter];
-                *pix = color[channel];
-                
-                counter += 1;
-            }
-        }
-    }
-
-}
-
-unsafe fn clear(buffer: *mut Vec<u8>, color: [u8; 3] ) {
-    //gets the vec from buffer
-    let mut pixels = &mut *buffer;
-    
-    //a convient way to index
-    let mut counter = 0;
-    for i in 0..(pixels.len() / 3)  {
-        for j in 0..color.len() {
-            pixels[counter] = color[j];
-            counter += 1;
-        }
-    }
-}
