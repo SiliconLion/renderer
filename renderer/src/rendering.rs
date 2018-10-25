@@ -15,17 +15,28 @@ with the last col starting at the second pixel.
 -
 */
 pub struct ViewPort {
-    ray_direction: Point, // a vector aimed in the direction the viewport is looking
-    row_pixels: u32,
-    col_pixels: u32,
-    rays: Vec<Line> //the origin of every ray. starts at the end of the first row, and moves horizontally across it 
+    pub ray_direction: Point, // a vector aimed in the direction the viewport is looking
+    pub row_pixels: u32,
+    pub col_pixels: u32,
+    pub rays: Vec<Line> //the origin of every ray. starts at the end of the first row, and moves horizontally across it 
     //until it reaches the end of the row, then starts at the begining of the second row and so on.
 }
 
 impl ViewPort {
-    pub fn new_from_window_dimentions(direction: Point, 
-                                    width: u32, 
-                                    height: u32,) -> ViewPort {
+    pub fn new_from_triangle(template: Tri,
+                            pixels_in_row: u32,
+                            pixels_in_col: u32) -> ViewPort {
+
+        //we know exactly how many items it will have, so no need for it to reallocate 
+        //multiple times
+        let mut rays: Vec<Line> = Vec::with_capacity(  (pixels_in_row *pixels_in_col) as usize );
+        unimplemented!()
+
+    }
+                                    
+    pub fn new_from_window_dimentions(width: u32, height: u32,) -> ViewPort {
+
+        let direction = Point::new(1.0, 0.0, 0.0);  
 
         //we know exactly how many items it will have, so no need for it to reallocate 
         //multiple times
@@ -33,7 +44,7 @@ impl ViewPort {
 
         for row in 0..height { //every pixel in height corisponds to a row
             for pixel in 0..width { //every pixle in the row (width is the number of pixels in a row)
-                let origin = Point::new(row as f32, pixel as f32, 0.0);
+                let origin = Point::new(0.0, row as f32,  pixel as f32);
                 let ray = Line::new(direction, origin);
                 rays.push(ray)
             }   

@@ -4,19 +4,19 @@ use renderer::*;
 use geometry::*;
 use stl;
 use rendering::{render, clear};
-use transformations::*;
+// use transformations::*;
 
-use std::time::Duration;
+// use std::time::Duration;
 
-extern crate spin_sleep;
+// extern crate spin_sleep;
 
 extern crate rand;
-use rand::random;
+// use rand::random;
 
 
 extern crate sdl2;
 use sdl2::pixels::PixelFormatEnum;
-use sdl2::rect::Rect;
+// use sdl2::rect::Rect;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
@@ -44,7 +44,7 @@ pub fn main() {
 
     let width = 800;
     let height = 800;
-    let depth = 900;
+    // let depth = 900;
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
@@ -61,7 +61,7 @@ pub fn main() {
     let texture_creator = canvas.texture_creator();
     let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGB24, width , height ).unwrap();
 
-    let mut test_closure;
+    let test_closure;
     //width * height is number of pixels, then 3 color channels per pixel
     let pixels = Box::new( vec![30; (width * height * 3) as usize] ) ;
     let pixels = Box::into_raw(pixels);
@@ -110,8 +110,7 @@ pub fn main() {
      //spin_sleep::sleep(Duration::new(1, 12_550_000));
 
     let mut triangles = stl::vec_from_stl(&path);
-    let camera = rendering::ViewPort::new_from_window_dimentions(
-                Point::new(0.0, 0.0, 1.0),
+    let mut camera = rendering::ViewPort::new_from_window_dimentions(
                 width,
                 height
                 );
@@ -137,13 +136,19 @@ pub fn main() {
 // ########  #######   #######  ##         
 
 
-    transformations::scale(3.0, &mut triangles);
-    transformations::translate_triangles(100.0, 300.0, 200.0, &mut triangles);
+    transformations::scale(5.0, &mut triangles);
+    transformations::translate_triangles(400.0, 40.0, 400.0, &mut triangles);
     
     'running: loop {
 
-        //transformations::flip_z(&mut triangles);
-        transformations::translate_triangles(15.0, 10.0, 0.0, &mut triangles);
+        // transformations::flip_z(&mut triangles);
+        // //transformations::translate_triangles(15.0, 10.0, 0.0, &mut triangles);
+        // let camera_angle = camera.ray_direction + point!(0.05, 0, -0.05);
+        // camera = rendering::ViewPort::new_from_window_dimentions(
+        //         camera_angle,
+        //         width,
+        //         height
+        //         );
 
         unsafe{ 
             clear(pixels, [100,100,255]);
