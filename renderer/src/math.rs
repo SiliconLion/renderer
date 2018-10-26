@@ -264,7 +264,8 @@ impl Tri {
                     &intersection_point
                 ).abs();
 
-            if rho > theta { inside = false }
+            if rho + 0.0004 > theta  { inside = false }
+            
         }
 
         (inside, intersection_point)
