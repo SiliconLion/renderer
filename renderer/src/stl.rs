@@ -11,6 +11,7 @@ fn point_from_stl(v: &stl_io::Vertex) -> Point {
 
 
 fn tri_from_indexed_triangle(
+            is_colored: bool,
             vert_locations: [usize; 3],  
             n: stl_io::Normal,
             verts: &Vec<stl_io::Vertex>) -> Tri {
@@ -22,18 +23,28 @@ fn tri_from_indexed_triangle(
 
     let normal = point_from_stl(&n);
 
-    //let greyscale = (( (n[0] + n[1] + n[2]) /3.0 ) * 255.0) as u8;
-    let color = [
-       (n[0] * 255.0 ) as u8,
-       (n[1] * 255.0 ) as u8,
-       (n[2] * 255.0 ) as u8
-    ];
+    let color = match is_colored{
+        true => {
+                [
+                    (n[0] * 255.0 ) as u8,
+                    (n[1] * 255.0 ) as u8,
+                    (n[2] * 255.0 ) as u8
+                ]
+            // let greyscale = (( (n[0] + n[1] + n[2]) /3.0 ) * 255.0) as u8;
+            //     [greyscale, greyscale, greyscale]
+            },
+        false => {
+            let greyscale = (( (n[0] + n[1] + n[2]) /3.0 ) * 255.0) as u8;
+            [greyscale, greyscale, greyscale]
+        }
+    };
+    
 
     Tri {points: [p[0], p[1], p[2]], normal, color}
 }
 
 
-pub fn vec_from_stl(path: &String) -> Vec<Tri> {
+pub fn vec_from_stl(is_colored: bool, path: &String) -> Vec<Tri> {
     let mut file = OpenOptions::new()
                 .read(true)
                 .open(path)
@@ -45,7 +56,7 @@ pub fn vec_from_stl(path: &String) -> Vec<Tri> {
     for i in 0..faces.len() {
         let t = &faces[i];
         tris.push(tri_from_indexed_triangle(
-            t.vertices, t.normal, &master_list
+            is_colored, t.vertices, t.normal, &master_list
         ));
     }
 

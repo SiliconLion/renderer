@@ -1,19 +1,9 @@
 
 use geometry::*;
-use math::*;
 use std::f32;
 
 
-/*
-a special use of a triangle. 
-- the normal is the direction the camera is looking.
-- the first two cordiates specify the direction and width of the rows of pixels
-- the last coordanate is used to indicate the direction and length of the cols of pixels. This is done by
-constructing a line that connects the first and third coordinate. 
-That is a col of pixels. parrallel and adjacent rows of pixels lie in the direction of the second coordinate, 
-with the last col starting at the second pixel.
--
-*/
+
 pub struct ViewPort {
     pub ray_direction: Point, // a vector aimed in the direction the viewport is looking
     pub row_pixels: u32,
@@ -23,16 +13,7 @@ pub struct ViewPort {
 }
 
 impl ViewPort {
-    pub fn new_from_triangle(template: Tri,
-                            pixels_in_row: u32,
-                            pixels_in_col: u32) -> ViewPort {
-
-        //we know exactly how many items it will have, so no need for it to reallocate 
-        //multiple times
-        let mut rays: Vec<Line> = Vec::with_capacity(  (pixels_in_row *pixels_in_col) as usize );
-        unimplemented!()
-
-    }
+   
                                     
     pub fn new_from_window_dimentions(width: u32, height: u32,) -> ViewPort {
 
@@ -189,7 +170,7 @@ pub unsafe fn clear(buffer: *mut Vec<u8>, color: [u8; 3] ) {
     
     //a convient way to index
     let mut counter = 0;
-    for i in 0..(pixels.len() / 3)  {
+    for _i in 0..(pixels.len() / 3)  {
         for j in 0..color.len() {
             pixels[counter] = color[j];
             counter += 1;

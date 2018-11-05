@@ -1,7 +1,6 @@
 extern crate renderer;
 use renderer::*;
 
-use geometry::*;
 use stl;
 use rendering::{render, clear};
 // use transformations::*;
@@ -16,9 +15,7 @@ extern crate rand;
 
 extern crate sdl2;
 use sdl2::pixels::PixelFormatEnum;
-// use sdl2::rect::Rect;
 use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 
 extern crate nfd;
 
@@ -95,6 +92,8 @@ pub fn main() {
 // ##     ## ##     ## ##     ##    ##    ##    ##    ##    ##    ##  ##     ## ##        
 // ########   #######   #######     ##     ######     ##    ##     ## ##     ## ## 
 
+
+
     let result = nfd::open_file_dialog(None, None).unwrap_or_else(|e| {
   	    panic!(e);
     });
@@ -107,15 +106,65 @@ pub fn main() {
         _ => println!("something went wrong with the file")
     }
 
-     //spin_sleep::sleep(Duration::new(1, 12_550_000));
 
-    let mut triangles = stl::vec_from_stl(&path);
-    let mut camera = rendering::ViewPort::new_from_window_dimentions(
-                width,
-                height
-                );
+
+
+    let mut x_offset = String::new();
+    println!("x_offset: ");
+    std::io::stdin().read_line(&mut x_offset)
+        .expect("Failed to read line");
+    let x_offset: f32 = x_offset.trim().parse().expect("Please input a number");
+
+    let mut y_offset = String::new();
+    println!("y_offset: ");
+    std::io::stdin().read_line(&mut y_offset)
+        .expect("Failed to read line");
+    let y_offset: f32 = y_offset.trim().parse().expect("Please input a number");
+
+    let mut z_offset = String::new();
+    println!("z_offset: ");
+    std::io::stdin().read_line(&mut z_offset)
+        .expect("Failed to read line");
+    let z_offset: f32 = z_offset.trim().parse().expect("Please input a number");
+
+    let mut scale = String::new();
+    println!("scale: ");
+    std::io::stdin().read_line(&mut scale)
+        .expect("Failed to read line");
+    let scale: f32 = scale.trim().parse().expect("Please input a number");
+
+    let mut is_colored = String::new();
+    println!("should it be colored?");
+    std::io::stdin().read_line(&mut is_colored)
+        .expect("Failed to read line");
+    is_colored = is_colored.trim().to_lowercase();
+    
+    let is_colored = match is_colored.as_str() {
+        "yes" => true,
+        _ => false
+    };
+
+
+
+
+
+    let mut triangles = stl::vec_from_stl(is_colored, &path);
+
+
+    transformations::scale(scale, &mut triangles);
+    transformations::translate_triangles(x_offset, y_offset, z_offset, &mut triangles);
+   
+    let camera = rendering::ViewPort::new_from_window_dimentions(
+            width,
+            height
+            );
     
   
+   
+    unsafe{ 
+        clear(pixels, [100,100,255]);
+        render(&camera, pixels, &triangles);
+        }
 
 
 // ########  ##     ## ##    ## ##    ## #### ##    ##  ######   
@@ -127,34 +176,17 @@ pub fn main() {
 // ##     ##  #######  ##    ## ##    ## #### ##    ##  ######   
 
 
-// ##        #######   #######  ########                         
-// ##       ##     ## ##     ## ##     ##                        
-// ##       ##     ## ##     ## ##     ##                        
-// ##       ##     ## ##     ## ########                         
-// ##       ##     ## ##     ## ##                               
-// ##       ##     ## ##     ## ##                               
-// ########  #######   #######  ##         
+//  ######  ######## ######## ##     ## ########  
+// ##    ## ##          ##    ##     ## ##     ## 
+// ##       ##          ##    ##     ## ##     ## 
+//  ######  ######      ##    ##     ## ########  
+//       ## ##          ##    ##     ## ##        
+// ##    ## ##          ##    ##     ## ##        
+//  ######  ########    ##     #######  ##               
 
 
-    transformations::scale(5.0, &mut triangles);
-    transformations::translate_triangles(400.0, 40.0, 400.0, &mut triangles);
     
     'running: loop {
-
-        // transformations::flip_z(&mut triangles);
-        // //transformations::translate_triangles(15.0, 10.0, 0.0, &mut triangles);
-        // let camera_angle = camera.ray_direction + point!(0.05, 0, -0.05);
-        // camera = rendering::ViewPort::new_from_window_dimentions(
-        //         camera_angle,
-        //         width,
-        //         height
-        //         );
-
-        unsafe{ 
-            clear(pixels, [100,100,255]);
-            render(&camera, pixels, &triangles);
-            // pixel_manip(pixels, &triangles, width as i32, height as i32);
-            }
 
         texture.with_lock(None, test_closure).unwrap();
         canvas.clear();

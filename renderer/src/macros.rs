@@ -1,4 +1,3 @@
-use geometry::Point;
 
 #[macro_export]
 macro_rules! point {

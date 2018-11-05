@@ -1,5 +1,4 @@
 use geometry::*;
-use math::*;
 
 //  ######   ######  ######## ##    ## ######## 
 // ##    ## ##    ## ##       ###   ## ##       
@@ -38,6 +37,13 @@ pub fn scale(scaler: f32, triangles: &mut Vec<Tri>) {
     }
 }
 
+
+
+
+
+
+
+//doesnt work
 
 fn flip_point_z(p: &mut Point) {
     p.coords[2] = p.coords[2] * -1.0;
